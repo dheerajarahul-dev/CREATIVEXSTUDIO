@@ -1,0 +1,11 @@
+{
+  "name": "creative-x-studio-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix studio run dev",
+    "build": "npm --prefix studio run build",
+    "start": "npm --prefix studio run start",
+    "typecheck": "npm --prefix studio run typecheck",
+    "install:studio": "npm install --prefix studio"
+  }
+}
