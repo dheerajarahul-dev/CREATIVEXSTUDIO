@@ -12,7 +12,7 @@ npx supabase start --workdir studio
 npx supabase status --workdir studio
 ```
 
-Copy `studio/.env.example` to `studio/.env.local` and fill it with the local API URL, publishable key, secret key, and `http://localhost:3000` site URL printed by Supabase. The secret key is server-only. No `.env.local` is committed or included in this repository.
+Copy `studio/.env.example` to `studio/.env.local`. The Supabase URL and `CREATIVEXSTUDIO` bucket are prefilled from your project link; add the project's publishable key and server-only secret key from Supabase Settings → API Keys. Never expose or commit the secret key. No `.env.local` is committed or included in this repository.
 
 Apply migrations and start the web app:
 
@@ -25,11 +25,11 @@ Open `http://localhost:3000`. With no Supabase values configured, `/studio` disp
 
 ## First administrator
 
-Signup is disabled and the Studio is invitation-only. Create the first administrator in the local Supabase Auth dashboard, then run this once in the local Supabase SQL editor after replacing the two values:
+Signup is disabled and the Studio is invitation-only. Create `dheeraj@gmail.com` in the Supabase Auth dashboard and set its password there. Then run this once in the Supabase SQL editor, replacing the email with the account you created:
 
 ```sql
 with first_admin as (
-  select id from auth.users where email = lower('admin@your-domain.com')
+  select id from auth.users where email = lower('dheeraj@gmail.com')
 ), workspace as (
   insert into public.workspaces (name, slug, created_by)
   select 'Creative X Creations', 'creative-x-creations', id from first_admin
@@ -42,7 +42,7 @@ from workspace cross join first_admin
 on conflict (workspace_id, user_id) do update set role = 'super_admin', status = 'active';
 ```
 
-The Auth user trigger creates the matching profile. Sign in with that account, then invite editors and clients from the workspace. Configure the Supabase Auth site URL and email provider before relying on invitation delivery.
+The Auth user trigger creates the matching profile. The Studio login pre-fills `dheeraj@gmail.com`; the password is intentionally not stored in source. Add the workspace membership using the SQL bootstrap above before signing in, then invite editors and clients. Configure the Auth site URL and email provider before relying on invitation delivery. I could not create the user because the linked dashboard requires your authenticated session.
 
 ## Implemented production workflow
 
@@ -66,4 +66,4 @@ The project-access SQL test is in `studio/supabase/tests/project_access.test.sql
 
 ## Not yet production-complete
 
-No Supabase credentials, email provider, deployed host, or source logo/reference screenshot were available in the workspace, and none were configured by this build. The database-backed workflows therefore compile but have not been exercised against a live/local Supabase instance. Messaging, calendar, workflow automation, reports, AI services, two-factor authentication, client intake file attachments, notifications/email, editor workload views, media transcoding/thumbnails, and signed-link audit/retention policies remain to be implemented. Do not publish for real client use until migrations and RLS tests pass on your Supabase project, bootstrap the first administrator, configure storage/Auth/email settings, and perform role-isolation tests.
+Supabase keys, email provider, deployed host, and source logo/reference screenshot were not available in the workspace. The database-backed workflows compile but have not been exercised against your Supabase instance. The bucket migration makes `CREATIVEXSTUDIO` private; confirm that is appropriate for everything already in that bucket before applying it. Messaging, calendar, workflow automation, reports, AI services, two-factor authentication, client intake file attachments, notifications/email, editor workload views, media transcoding/thumbnails, and signed-link audit/retention policies remain to be implemented. Do not publish for client use until migrations and RLS tests pass, the first administrator is bootstrapped, Auth/email settings are configured, and role-isolation tests pass.
