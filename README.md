@@ -23,6 +23,22 @@ npm run dev
 
 Open `http://localhost:3000`. With no Supabase values configured, `/studio` displays setup guidance and does not seed fake users, projects, or passwords.
 
+## Deploy to Netlify
+
+The repository includes a root `netlify.toml` configured for the Next.js app in `studio/`. In Netlify, connect this repository and let the config set the base directory to `studio`, build command to `npm run build`, and the Next.js runtime adapter. Do not set the publish directory to the source folder or use a static export; this app needs server routes for Auth, project data, and private Storage.
+
+Add these values in **Site configuration → Environment variables** before deploying:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=https://afuvctxsspteucljfvlh.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
+SUPABASE_SECRET_KEY=<Supabase secret key; server only>
+NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=CREATIVEXSTUDIO
+NEXT_PUBLIC_SITE_URL=https://<your-netlify-site-domain>
+```
+
+Then add `https://<your-netlify-site-domain>/auth/callback` to Supabase Auth's allowed redirect URLs, apply the migrations, bootstrap the first administrator, and trigger a fresh Netlify deploy. Never add the Supabase secret key to Git or a `NEXT_PUBLIC_` variable.
+
 ## First administrator
 
 Signup is disabled and the Studio is invitation-only. Create `dheeraj@gmail.com` in the Supabase Auth dashboard and set its password there. Then run this once in the Supabase SQL editor, replacing the email with the account you created:
